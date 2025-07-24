@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" data-color-scheme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사주 운세 풀이</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main class="container py-16" id="app">
+    <!-- 입력 섹션 -->
+    <section id="input-section" class="card fade-in-up">
+      <div class="card__header flex justify-between items-center">
+        <h2>사주 풀이</h2>
+      </div>
+      <div class="card__body">
+        <form id="fortune-form" class="flex flex-col" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label" for="birthdate">생년월일</label>
+            <input type="text" id="birthdate" class="form-control" placeholder="YYYY-MM-DD" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="birthtime">태어난 시간</label>
+            <select id="birthtime" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <span class="form-label">성별</span>
+            <div class="flex gap-8">
+              <label class="flex items-center gap-4"><input type="radio" name="gender" value="남성" /> 남성</label>
+              <label class="flex items-center gap-4"><input type="radio" name="gender" value="여성" /> 여성</label>
+            </div>
+          </div>
+          <button id="calculate-btn" type="submit" class="btn btn--primary btn--full-width">운세 보기</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 결과 섹션 -->
+    <section id="result-section" class="card hidden fade-in-up">
+      <div class="card__header flex justify-between items-center">
+        <h2>운세 결과</h2>
+        <button id="reset-btn" class="btn btn--secondary btn--sm" type="button">다시 보기</button>
+      </div>
+      <div class="card__body flex flex-col gap-16" id="result-body">
+        <div id="pillar-display" class="status status--info">사주를 계산 중입니다...</div>
+
+        <div>
+          <h3 class="mb-8">오행 균형</h3>
+          <div class="chart-container" style="position: relative; height:300px">
+            <canvas id="elementChart"></canvas>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="mb-8">기본 성격 분석</h3>
+          <p id="personality-text"></p>
+        </div>
+
+        <div>
+          <h3 class="mb-8">기간별 운세</h3>
+          <div id="fortune-blocks" class="flex flex-col gap-16"></div>
+        </div>
+
+        <div>
+          <h3 class="mb-8">특별 조언</h3>
+          <p id="special-advice"></p>
+        </div>
+
+        <button id="share-btn" class="btn btn--outline btn--full-width" type="button">결과 공유하기</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
