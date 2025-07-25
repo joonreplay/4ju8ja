@@ -145,62 +145,89 @@ $('#btn-talisman').addEventListener('click',()=>{
   generateTalisman({dayStem:{hanja:dayStemHanja}});
 });
 
-function generateTalisman(state){
-  /* 가드 */
-  if(!state||!state.dayStem||!state.dayStem.hanja){
-    alert('먼저 운세를 확인하세요!');
-    return;
-  }
-  const W=1080,H=1920;
-  const canvas=document.createElement('canvas');
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
+/* ==========================================
+ *  부적 발급 : “행운‧상승” 클로버 부적
+ *  - 진노랑 배경(#FFD700)
+ *  - 붉은 테두리(20 px) & 모서리 홈
+ *  - 코너 한자 ❶幸 ❷運 ❸上 ❹昇
+ *  - 중앙 : ‘행운’(70 px) + 네잎클로버
+ *  - 하단 : ‘상승’(70 px)
+ *  - 해상도 1080×1920, 파일명 lucky_bujeok.png
+ * ========================================== */
+function generateTalisman() {
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
 
-  /* 1. 배경(진노랑) */
-  ctx.fillStyle='#FFD700';
-  ctx.fillRect(0,0,W,H);
+  /* 1) 배경 */
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(0, 0, W, H);
 
-  /* 2. 붉은 테두리 */
-  ctx.lineWidth=36;
-  ctx.strokeStyle='#B40015';
-  ctx.strokeRect(18,18,W-36,H-36);
+  /* 2) 붉은 테두리 (+ 모서리 홈) */
+  const border = 20, corner = 80;
+  ctx.strokeStyle = '#C4001E';
+  ctx.lineWidth = border;
+  ctx.beginPath();
+  // 위쪽
+  ctx.moveTo(corner, border / 2);
+  ctx.lineTo(W - corner, border / 2);
+  // 우측
+  ctx.lineTo(W - border / 2, corner);
+  ctx.lineTo(W - border / 2, H - corner);
+  // 아래
+  ctx.lineTo(W - corner, H - border / 2);
+  ctx.lineTo(corner, H - border / 2);
+  // 좌측
+  ctx.lineTo(border / 2, H - corner);
+  ctx.lineTo(border / 2, corner);
+  ctx.closePath();
+  ctx.stroke();
 
-  /* 3. 전체 문양(붉은 팔괘 + 격자) */
-  ctx.save();
-  ctx.globalAlpha=0.15;
-  ctx.fillStyle='#B40015';
-  ctx.font='60px KaiTi,serif';
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  const trig=['☰','☱','☲','☳','☴','☵','☶','☷'];
-  const step=120;
-  for(let y=18+step/2;y<H-18;y+=step){
-    for(let x=18+step/2;x<W-18;x+=step){
-      ctx.fillText(trig[(x+y)%trig.length],x,y);
-    }
-  }
-  ctx.restore();
+  /* 3) 코너 한자 */
+  ctx.fillStyle = '#C4001E';
+  ctx.font = '64px KaiTi, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('幸', corner / 2 + 10, corner / 2 + 10);                 // 좌상
+  ctx.fillText('運', W - corner / 2 - 10, corner / 2 + 10);             // 우상
+  ctx.fillText('上', corner / 2 + 10, H - corner / 2 - 10);             // 좌하
+  ctx.fillText('昇', W - corner / 2 - 10, H - corner / 2 - 10);         // 우하
 
-  /* 4. 중앙 큰 福 */
-  ctx.fillStyle='#B40015';
-  ctx.font='700px KaiTi,serif';
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.fillText('福',W/2,H/2);
+  /* 4) 중앙 ‘행운’ 텍스트 */
+  ctx.font = '700 70px "Pretendard", "Noto Sans KR", sans-serif';
+  ctx.fillText('행운', W / 2, H / 2 - 260);
 
-  /* 5. 하단 일간 한자 */
-  ctx.font='120px KaiTi,serif';
-  ctx.fillText(state.dayStem.hanja,W/2,H-220);
+  /* 5) 네잎클로버 그리기 */
+  ctx.lineWidth = 18;
+  const r = 180, cx = W / 2, cy = H / 2;
+  const drawLeaf = angle => {
+    const rad = angle * Math.PI / 180;
+    ctx.beginPath();
+    ctx.arc(cx + r * Math.cos(rad), cy + r * Math.sin(rad), r, 0, 2 * Math.PI);
+    ctx.stroke();
+  };
+  [45, 135, 225, 315].forEach(drawLeaf);
+  // 줄기
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + r);
+  ctx.lineTo(cx, cy + r + 140);
+  ctx.stroke();
 
-  /* 6. 이미지 저장 */
-  const a=document.createElement('a');
-  a.download='bujeok_wallpaper.png';
-  a.href=canvas.toDataURL('image/png');
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  alert('부적 배경화면이 다운로드되었습니다!');
+  /* 6) 하단 ‘상승’ 텍스트 */
+  ctx.font = '700 70px "Pretendard", "Noto Sans KR", sans-serif';
+  ctx.fillText('상승', W / 2, H - 220);
+
+  /* 7) 저장 */
+  const link = document.createElement('a');
+  link.download = 'lucky_bujeok.png';
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  alert('행운·상승 부적이 다운로드되었습니다!');
 }
+
 
 /* ------------------------------
  * 7) 한자 변환 유틸
