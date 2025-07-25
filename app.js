@@ -1,4 +1,4 @@
-// 사주팔자 운세 앱 완전 구현 (폼 제출 버그 수정 버전)
+// 사주팔자 운세 앱 완전 구현 (버그 수정 버전)
 class FortuneApp {
   constructor() {
     // 천간 (Heavenly Stems)
@@ -40,22 +40,36 @@ class FortuneApp {
       수: { name: '수(水)', color: '#5D878F' }
     };
 
+    // 시간대 배열
+    this.timeSlots = [
+      { name: '자시', range: '23:00~01:00' },
+      { name: '축시', range: '01:00~03:00' },
+      { name: '인시', range: '03:00~05:00' },
+      { name: '묘시', range: '05:00~07:00' },
+      { name: '진시', range: '07:00~09:00' },
+      { name: '사시', range: '09:00~11:00' },
+      { name: '오시', range: '11:00~13:00' },
+      { name: '미시', range: '13:00~15:00' },
+      { name: '신시', range: '15:00~17:00' },
+      { name: '유시', range: '17:00~19:00' },
+      { name: '술시', range: '19:00~21:00' },
+      { name: '해시', range: '21:00~23:00' }
+    ];
+
     this.fortuneData = null;
-    this.currentState = null;
     this.chart = null;
     this.init();
   }
 
   init() {
     console.log('FortuneApp initializing...');
-    this.setDefaultDate();
     this.setupEventListeners();
+    this.setDefaultDate();
   }
 
   setDefaultDate() {
-    // 현재 날짜로 기본값 설정 (30년 전으로 설정)
+    // 현재 날짜로 기본값 설정
     const today = new Date();
-    today.setFullYear(today.getFullYear() - 30);
     const dateStr = today.getFullYear() + '-' + 
                    String(today.getMonth() + 1).padStart(2, '0') + '-' + 
                    String(today.getDate()).padStart(2, '0');
@@ -63,96 +77,74 @@ class FortuneApp {
     const birthdateInput = document.getElementById('birthdate');
     if (birthdateInput) {
       birthdateInput.value = dateStr;
-      birthdateInput.max = new Date().toISOString().split('T')[0]; // 오늘 날짜까지만 선택 가능
     }
   }
 
   setupEventListeners() {
     console.log('Setting up event listeners...');
     
-    // 폼 제출 이벤트
+    // 폼 제출 - 이벤트 위임 방식으로 변경
+    document.addEventListener('click', (e) => {
+      if (e.target.type === 'submit' || e.target.closest('button[type="submit"]')) {
+        e.preventDefault();
+        console.log('Submit button clicked');
+        this.handleFormSubmit(e);
+      }
+    });
+
+    // 폼 제출 이벤트도 추가로 등록
     const form = document.getElementById('fortune-form');
     if (form) {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        console.log('Form submitted via form event');
-        this.handleFormSubmit(e);
-      });
-    }
-
-    // 제출 버튼 클릭 이벤트 (추가 보장)
-    const submitBtn = document.getElementById('submit-btn');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Submit button clicked');
+        console.log('Form submitted');
         this.handleFormSubmit(e);
       });
     }
 
     // 다시 보기 버튼
-    const resetBtn = document.getElementById('reset-btn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'reset-btn') {
         this.resetToInput();
-      });
-    }
+      }
+    });
 
     // 공유 버튼
-    const shareBtn = document.getElementById('share-btn');
-    if (shareBtn) {
-      shareBtn.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'share-btn') {
         this.showShareModal();
-      });
-    }
+      }
+    });
 
     // 부적 발급 버튼
-    const talismanBtn = document.getElementById('talisman-btn');
-    if (talismanBtn) {
-      talismanBtn.addEventListener('click', () => {
-        this.generateTalisman(this.currentState);
-      });
-    }
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'talisman-btn') {
+        this.generateTalisman();
+      }
+    });
 
     // 모달 관련
     this.setupModalListeners();
   }
 
   setupModalListeners() {
-    const closeModal = document.getElementById('close-modal');
-    if (closeModal) {
-      closeModal.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'close-modal' || e.target.classList.contains('modal-overlay')) {
         this.hideShareModal();
-      });
-    }
-
-    const modalOverlay = document.querySelector('.modal-overlay');
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', () => {
-        this.hideShareModal();
-      });
-    }
-
-    const kakaoShare = document.getElementById('kakao-share');
-    if (kakaoShare) {
-      kakaoShare.addEventListener('click', () => {
+      }
+      
+      if (e.target.id === 'kakao-share') {
         this.shareToKakao();
-      });
-    }
-
-    const telegramShare = document.getElementById('telegram-share');
-    if (telegramShare) {
-      telegramShare.addEventListener('click', () => {
+      }
+      
+      if (e.target.id === 'telegram-share') {
         this.shareToTelegram();
-      });
-    }
-
-    const copyUrl = document.getElementById('copy-url');
-    if (copyUrl) {
-      copyUrl.addEventListener('click', () => {
+      }
+      
+      if (e.target.id === 'copy-url') {
         this.copyUrl();
-      });
-    }
+      }
+    });
   }
 
   handleFormSubmit(e) {
@@ -166,7 +158,6 @@ class FortuneApp {
 
     console.log('Form data:', { birthdate, birthtime, gender });
 
-    // 유효성 검사
     if (!birthdate) {
       alert('생년월일을 입력해주세요!');
       return;
@@ -188,7 +179,7 @@ class FortuneApp {
     this.fortuneData = this.calculateFortune(birthdate, birthtime, gender);
     console.log('Fortune calculated:', this.fortuneData);
     
-    this.showResults(this.fortuneData);
+    this.displayResults();
   }
 
   calculateFortune(birthdate, timeIndex, gender) {
@@ -220,7 +211,6 @@ class FortuneApp {
         day: { stem: dayStem, branch: dayBranch },
         time: { stem: timeStem, branch: timeBranch }
       },
-      dayStemElement: dayStem.element,
       elements: this.calculateElementBalance([yearStem, monthStem, dayStem, timeStem], [yearBranch, monthBranch, dayBranch, timeBranch]),
       fortune: this.generateFortune(dayStem, dayBranch, gender)
     };
@@ -298,11 +288,8 @@ class FortuneApp {
     return descriptions[category][level];
   }
 
-  showResults(state) {
+  displayResults() {
     console.log('Displaying results...');
-    
-    // 현재 상태 저장
-    this.currentState = state;
     
     // 입력 섹션 숨기고 결과 섹션 표시
     const inputSection = document.getElementById('input-section');
@@ -320,7 +307,7 @@ class FortuneApp {
     const pillarsContainer = document.getElementById('pillar-display');
     if (!pillarsContainer) return;
     
-    const { pillars } = this.currentState;
+    const { pillars } = this.fortuneData;
 
     const pillarNames = ['년주', '월주', '일주', '시주'];
     const pillarKeys = ['year', 'month', 'day', 'time'];
@@ -344,7 +331,7 @@ class FortuneApp {
     if (!ctx) return;
     
     const chartCtx = ctx.getContext('2d');
-    const { elements } = this.currentState;
+    const { elements } = this.fortuneData;
 
     if (this.chart) {
       this.chart.destroy();
@@ -387,7 +374,7 @@ class FortuneApp {
     const fortuneContainer = document.getElementById('fortune-blocks');
     if (!fortuneContainer) return;
     
-    const { fortune } = this.currentState;
+    const { fortune } = this.fortuneData;
 
     fortuneContainer.innerHTML = Object.keys(fortune).map(period => {
       const periodData = fortune[period];
@@ -435,9 +422,6 @@ class FortuneApp {
       this.chart.destroy();
       this.chart = null;
     }
-    
-    // 상태 초기화
-    this.currentState = null;
   }
 
   showShareModal() {
@@ -495,115 +479,70 @@ class FortuneApp {
     this.hideShareModal();
   }
 
-  generateTalisman(state) {
-    console.log('Generating talisman with state:', state);
+  generateTalisman() {
+    console.log('Generating talisman...');
     
-    if (!state) {
+    if (!this.fortuneData) {
       alert('먼저 운세를 확인해주세요!');
       return;
     }
 
-    const elem = state.dayStemElement;
-    
-    // 오행별 테마 정의
-    const themes = {
-      목: { grad: ['#E0FFE8', '#92E6B6'], symbol: '青龍', seal: '木' },
-      화: { grad: ['#FFE9E4', '#FF6B6B'], symbol: '朱雀', seal: '火' },
-      토: { grad: ['#FFF9E1', '#F3C969'], symbol: '黃符', seal: '土' },
-      금: { grad: ['#F7F7F7', '#CFCFCF'], symbol: '白虎', seal: '金' },
-      수: { grad: ['#E4F0FF', '#6CA8FF'], symbol: '玄武', seal: '水' }
-    };
-
-    const theme = themes[elem];
-    if (!theme) {
-      alert('오행 정보를 찾을 수 없습니다!');
-      return;
-    }
-
     const canvas = document.createElement('canvas');
-    canvas.width = 1170;
-    canvas.height = 2532;
+    canvas.width = 300;
+    canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
-    // 배경 그라디언트 (오행별)
-    const gradient = ctx.createLinearGradient(0, 0, 0, 2532);
-    gradient.addColorStop(0, theme.grad[0]);
-    gradient.addColorStop(1, theme.grad[1]);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 1170, 2532);
+    // 배경 (노란색)
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(0, 0, 300, 500);
 
-    // 상단 얇은 빨간 테두리
-    ctx.fillStyle = '#C4001E';
-    ctx.fillRect(0, 0, 1170, 10);
+    // 테두리 (빨간색)
+    ctx.strokeStyle = '#DC143C';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(4, 4, 292, 492);
 
-    // 중앙 큰 복 글자 (800px, 빨간색 + 금색 광택)
-    ctx.save();
-    ctx.shadowColor = '#FFD700';
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    
-    ctx.fillStyle = '#C4001E';
-    ctx.font = 'bold 800px serif';
+    // 복 글자 (빨간색, 큰 글씨)
+    ctx.fillStyle = '#DC143C';
+    ctx.font = 'bold 180px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('福', 585, 1266);
-    ctx.restore();
+    ctx.fillText('福', 150, 200);
 
-    // 복 글자 아래 오행 상징 (200px, 투명도 0.15의 빨간색)
-    ctx.fillStyle = 'rgba(196, 0, 30, 0.15)';
-    ctx.font = 'bold 200px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(theme.symbol, 585, 1600);
+    // 사용자 일간 (작은 글씨)
+    const dayStem = this.fortuneData.pillars.day.stem;
+    const dayBranch = this.fortuneData.pillars.day.branch;
+    ctx.font = '24px serif';
+    ctx.fillText(`${dayStem.korean}${dayBranch.korean}(${dayStem.hanja}${dayBranch.hanja})`, 150, 380);
 
-    // 하단 일간 한자 (100px, 빨간색)
-    const dayStem = state.pillars.day.stem;
-    const dayBranch = state.pillars.day.branch;
-    ctx.fillStyle = '#C4001E';
-    ctx.font = 'bold 100px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${dayStem.hanja}${dayBranch.hanja}`, 585, 2300);
-
-    // 우측 하단 빨간 직사각형 도장
-    const stampX = 1020;
-    const stampY = 2382;
-    const stampSize = 100;
-    
-    ctx.fillStyle = '#C4001E';
-    ctx.fillRect(stampX, stampY, stampSize, stampSize);
-    
-    // 도장 안의 흰색 오행 글자
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 60px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(theme.seal, stampX + stampSize/2, stampY + stampSize/2);
+    // 날짜
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getDate().toString().padStart(2, '0')}`;
+    ctx.font = '16px serif';
+    ctx.fillText(dateStr, 150, 440);
 
     // 다운로드
     const dataURL = canvas.toDataURL('image/png');
     const link = document.createElement('a');
-    link.download = 'personalized_talisman.png';
+    link.download = '복부적.png';
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    alert('🪄 맞춤 부적이 다운로드되었습니다!');
+    alert('🪄 부적 이미지가 다운로드되었습니다!');
   }
 }
 
 // 앱 초기화
-let fortuneApp = null;
-
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, initializing app...');
-  fortuneApp = new FortuneApp();
+  new FortuneApp();
 });
 
 // 추가 초기화 (만약을 위해)
 window.addEventListener('load', () => {
   console.log('Window loaded');
-  if (!fortuneApp) {
-    fortuneApp = new FortuneApp();
+  if (!window.fortuneApp) {
+    window.fortuneApp = new FortuneApp();
   }
 });
