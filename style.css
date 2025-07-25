@@ -738,10 +738,359 @@ select.form-control {
 }
 
 /* END PERPLEXITY DESIGN SYSTEM */
-#calculate-btn {
+/* Fortune-telling app specific styles */
+
+/* 福 패턴 배경 */
+.background-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(45deg, #FFD700 0%, #FFF700 50%, #FFD700 100%);
+  overflow: hidden;
+}
+
+.background-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 0, 0, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(255, 0, 0, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 40% 40%, rgba(0, 0, 0, 0.05) 0%, transparent 30%);
+}
+
+.background-pattern::after {
+  content: '福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福福';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 60px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  color: rgba(220, 20, 60, 0.1);
+  line-height: 80px;
+  word-spacing: 40px;
+  letter-spacing: 30px;
+  transform: rotate(-15deg);
+  overflow: hidden;
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+/* Body override for fortune theme */
+body {
+  background: transparent;
+  min-height: 100vh;
+}
+
+/* Fortune card styling */
+.fortune-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #DC143C;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(220, 20, 60, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.fortune-card:hover {
+  box-shadow: 0 12px 40px rgba(220, 20, 60, 0.3);
+}
+
+/* Typography */
+.fortune-title {
+  color: #DC143C;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  color: #DC143C;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid #FFD700;
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+
+/* Form styling - Override design system for select dropdown */
+.form-control {
+  border: 2px solid #FFD700;
+  background: rgba(255, 255, 255, 0.9);
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--color-text);
+  border-radius: var(--radius-base);
+  transition: border-color var(--duration-fast) var(--ease-standard);
   display: block;
   width: 100%;
-  margin-top: var(--space-32);
+}
+
+.form-control:focus {
+  border-color: #DC143C;
+  box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.2);
+  outline: none;
+}
+
+/* Fix select dropdown - completely override design system */
+select.form-control {
+  -webkit-appearance: menulist !important;
+  -moz-appearance: menulist !important;
+  appearance: menulist !important;
+  background-image: none !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  cursor: pointer !important;
+  padding-right: var(--space-16) !important;
+}
+
+/* Ensure select is clickable */
+select.form-control:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+/* Input styling fixes */
+input.form-control {
+  cursor: text;
+}
+
+input[type="date"].form-control {
+  cursor: pointer;
+}
+
+/* Button styling */
+.fortune-btn {
+  background: linear-gradient(135deg, #DC143C 0%, #B91C1C 100%);
+  color: white;
+  font-weight: var(--font-weight-bold);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  border: none;
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+  transition: all var(--duration-normal) var(--ease-standard);
+  cursor: pointer;
+  padding: var(--space-12) var(--space-20);
+  font-size: var(--font-size-lg);
+}
+
+.fortune-btn:hover {
+  background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 20, 60, 0.5);
+}
+
+.fortune-btn:active {
+  transform: translateY(0);
+}
+
+/* 사주팔자 기둥 표시 */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-16);
+  margin-top: var(--space-16);
+}
+
+.pillar-item {
+  background: linear-gradient(135deg, #FFD700 0%, #FFF700 100%);
+  border: 2px solid #DC143C;
+  border-radius: var(--radius-base);
+  padding: var(--space-16);
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.2);
+}
+
+.pillar-label {
+  color: #DC143C;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+
+.pillar-chars {
+  color: var(--color-slate-900);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+/* 운세 기간 표시 */
+.fortune-periods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.fortune-period {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #FFD700;
+  border-radius: var(--radius-base);
+  padding: var(--space-20);
+}
+
+.period-title {
+  color: #DC143C;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-16);
+  text-align: center;
+}
+
+.fortune-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-16);
+}
+
+.fortune-category {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid #FFD700;
+  border-radius: var(--radius-sm);
+  padding: var(--space-12);
+}
+
+.category-name {
+  color: #DC143C;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-8);
+}
+
+.score-bar {
+  background: rgba(220, 20, 60, 0.2);
+  height: 20px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #DC143C 0%, #FF6B6B 100%);
+  border-radius: var(--radius-full);
+  transition: width 1s ease-in-out;
+}
+
+.score-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-slate-900);
+  text-align: right;
+  font-weight: var(--font-weight-medium);
+}
+
+.category-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* 모달 스타일링 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.modal-content {
   position: relative;
-  z-index: 10; /* ensure above any other form inputs */
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+.modal-title {
+  color: #DC143C;
+  text-align: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .pillars-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-12);
+  }
+  
+  .fortune-categories {
+    grid-template-columns: 1fr;
+  }
+  
+  .flex {
+    flex-direction: column;
+  }
+  
+  .background-pattern::after {
+    font-size: 40px;
+    line-height: 60px;
+    word-spacing: 20px;
+    letter-spacing: 15px;
+  }
+}
+
+/* 라디오 버튼 스타일링 */
+input[type="radio"] {
+  accent-color: #DC143C;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* 유틸리티 클래스 추가 */
+.mb-24 {
+  margin-bottom: var(--space-24);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* 차트 컨테이너 */
+.chart-container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #FFD700;
+  border-radius: var(--radius-base);
+  padding: var(--space-16);
+}
+
+/* 폼 그룹 스타일링 */
+.form-group {
+  margin-bottom: var(--space-16);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-8);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  color: #DC143C;
+}
+
+/* 숨김 클래스 */
+.hidden {
+  display: none !important;
 }

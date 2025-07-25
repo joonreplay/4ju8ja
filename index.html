@@ -1,76 +1,129 @@
 <!DOCTYPE html>
-<html lang="ko" data-color-scheme="dark">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>사주 운세 풀이</title>
+  <title>福 사주 운세</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <!-- 福 패턴 배경 -->
+  <div id="bg-pattern" class="background-pattern" aria-hidden="true"></div>
+
   <main class="container py-16" id="app">
     <!-- 입력 섹션 -->
-    <section id="input-section" class="card fade-in-up">
-      <div class="card__header flex justify-between items-center">
-        <h2>사주 풀이</h2>
+    <section id="input-section" class="card fortune-card">
+      <div class="card__header">
+        <h1 class="fortune-title">🔮 사주팔자 운세</h1>
       </div>
       <div class="card__body">
-        <form id="fortune-form" class="flex flex-col" autocomplete="off">
+        <form id="fortune-form" class="flex flex-col gap-16">
           <div class="form-group">
             <label class="form-label" for="birthdate">생년월일</label>
-            <input type="text" id="birthdate" class="form-control" placeholder="YYYY-MM-DD" />
+            <input type="date" id="birthdate" class="form-control" required />
           </div>
           <div class="form-group">
             <label class="form-label" for="birthtime">태어난 시간</label>
-            <select id="birthtime" class="form-control"></select>
+            <select id="birthtime" class="form-control" required>
+              <option value="" disabled selected>— 태어난 시간을 선택하세요 —</option>
+              <option value="0">자시 (23:00~01:00)</option>
+              <option value="1">축시 (01:00~03:00)</option>
+              <option value="2">인시 (03:00~05:00)</option>
+              <option value="3">묘시 (05:00~07:00)</option>
+              <option value="4">진시 (07:00~09:00)</option>
+              <option value="5">사시 (09:00~11:00)</option>
+              <option value="6">오시 (11:00~13:00)</option>
+              <option value="7">미시 (13:00~15:00)</option>
+              <option value="8">신시 (15:00~17:00)</option>
+              <option value="9">유시 (17:00~19:00)</option>
+              <option value="10">술시 (19:00~21:00)</option>
+              <option value="11">해시 (21:00~23:00)</option>
+            </select>
           </div>
           <div class="form-group">
             <span class="form-label">성별</span>
-            <div class="flex gap-8">
-              <label class="flex items-center gap-4"><input type="radio" name="gender" value="남성" /> 남성</label>
-              <label class="flex items-center gap-4"><input type="radio" name="gender" value="여성" /> 여성</label>
+            <div class="flex gap-16">
+              <label class="flex items-center gap-4">
+                <input type="radio" name="gender" value="남성" required />
+                <span>남성</span>
+              </label>
+              <label class="flex items-center gap-4">
+                <input type="radio" name="gender" value="여성" required />
+                <span>여성</span>
+              </label>
             </div>
           </div>
-          <button id="calculate-btn" type="submit" class="btn btn--primary btn--full-width">운세 보기</button>
+          <button type="submit" class="btn btn--primary btn--full-width fortune-btn">
+            ✨ 운세 보기
+          </button>
         </form>
       </div>
     </section>
 
     <!-- 결과 섹션 -->
-    <section id="result-section" class="card hidden fade-in-up">
+    <section id="result-section" class="card fortune-card hidden">
       <div class="card__header flex justify-between items-center">
-        <h2>운세 결과</h2>
+        <h2 class="fortune-title">🎴 운세 결과</h2>
         <button id="reset-btn" class="btn btn--secondary btn--sm" type="button">다시 보기</button>
       </div>
-      <div class="card__body flex flex-col gap-16" id="result-body">
-        <div id="pillar-display" class="status status--info">사주를 계산 중입니다...</div>
+      <div class="card__body">
+        <!-- 사주팔자 표시 -->
+        <div class="pillar-section mb-24">
+          <h3 class="section-title">🏛️ 사주팔자</h3>
+          <div id="pillar-display" class="pillars-grid"></div>
+        </div>
 
-        <div>
-          <h3 class="mb-8">오행 균형</h3>
-          <div class="chart-container" style="position: relative; height:300px">
+        <!-- 오행 균형 -->
+        <div class="elements-section mb-24">
+          <h3 class="section-title">☯️ 오행 균형</h3>
+          <div class="chart-container" style="position: relative; height: 300px;">
             <canvas id="elementChart"></canvas>
           </div>
         </div>
 
-        <div>
-          <h3 class="mb-8">기본 성격 분석</h3>
-          <p id="personality-text"></p>
+        <!-- 기간별 운세 -->
+        <div class="fortune-section mb-24">
+          <h3 class="section-title">🌟 기간별 운세</h3>
+          <div id="fortune-blocks" class="fortune-periods"></div>
         </div>
 
-        <div>
-          <h3 class="mb-8">기간별 운세</h3>
-          <div id="fortune-blocks" class="flex flex-col gap-16"></div>
+        <!-- 액션 버튼 -->
+        <div class="flex gap-16">
+          <button id="share-btn" class="btn btn--outline flex-1" type="button">
+            📤 결과 공유하기
+          </button>
+          <button id="talisman-btn" class="btn btn--primary flex-1" type="button">
+            🪄 부적 발급
+          </button>
         </div>
-
-        <div>
-          <h3 class="mb-8">특별 조언</h3>
-          <p id="special-advice"></p>
-        </div>
-
-        <button id="share-btn" class="btn btn--outline btn--full-width" type="button">결과 공유하기</button>
       </div>
     </section>
   </main>
+
+  <!-- 공유 모달 -->
+  <div id="share-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-overlay" data-close="true"></div>
+    <div class="modal-content card">
+      <div class="card__header">
+        <h3 class="modal-title">📤 공유하기</h3>
+      </div>
+      <div class="card__body flex flex-col gap-16">
+        <button id="kakao-share" class="btn btn--primary btn--full-width" type="button">
+          💬 카카오톡으로 공유
+        </button>
+        <button id="telegram-share" class="btn btn--outline btn--full-width" type="button">
+          ✈️ 텔레그램으로 공유
+        </button>
+        <button id="copy-url" class="btn btn--secondary btn--full-width" type="button">
+          📋 URL 복사하기
+        </button>
+        <button id="close-modal" class="btn btn--sm btn--outline btn--full-width" type="button">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
